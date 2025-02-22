@@ -73,6 +73,12 @@ func proxy(url string, w http.ResponseWriter, r *http.Request) {
 func handler(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimSpace(r.URL.Path[1:])
 
+	if path == "" {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Pico Proxy"))
+		return
+	}
+
 	for k, v := range paths {
 		if strings.HasPrefix(path, k) {
 			proxy(v, w, r)
