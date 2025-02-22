@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io"
 	"log"
@@ -90,6 +91,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	if strings.TrimSpace(os.Getenv("INSECURE_SKIP_VERIFY")) == "yes" {
+		fmt.Println("InsecureSkipVerify enabled")
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
