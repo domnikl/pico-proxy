@@ -31,6 +31,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: false
-          tags: domnikl/pico-proxy
+          push: true
+          tags: ghcr.io/domnikl/pico-proxy:latest
           platforms: linux/amd64,linux/arm64
