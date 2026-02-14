@@ -2,7 +2,6 @@ package main
 
 import (
 	"crypto/tls"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -27,11 +26,11 @@ func extractPath(url *url.URL) string {
 
 func proxy(url string, w http.ResponseWriter, r *http.Request) {
 	url = url + "/" + extractPath(r.URL)
-	fmt.Printf("Proxying %s to %s\n", r.URL, url)
+	log.Printf("Proxying %s to %s\n", r.URL, url)
 
 	request, err := http.NewRequest("GET", url, r.Body)
 	if err != nil {
-		fmt.Println("Error creating request: " + err.Error())
+		log.Println("Error creating request: " + err.Error())
 
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -44,7 +43,7 @@ func proxy(url string, w http.ResponseWriter, r *http.Request) {
 
 	resp, err := http.DefaultClient.Do(request)
 	if err != nil {
-		fmt.Printf("Error requesting %s: %s\n", url, err.Error())
+		log.Printf("Error requesting %s: %s\n", url, err.Error())
 
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -55,7 +54,7 @@ func proxy(url string, w http.ResponseWriter, r *http.Request) {
 	// Copy response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Printf("Error reading response from %s: %s\n", url, err.Error())
+		log.Printf("Error reading response from %s: %s\n", url, err.Error())
 
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -92,7 +91,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	if strings.TrimSpace(os.Getenv("INSECURE_SKIP_VERIFY")) == "yes" {
-		fmt.Println("InsecureSkipVerify enabled")
+		log.Println("InsecureSkipVerify enabled")
 		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
@@ -101,7 +100,7 @@ func main() {
 		port = "8080"
 	}
 
-	fmt.Printf("Starting pico-proxy on port %s\n", port)
+	log.Printf("Starting pico-proxy on port %s\n", port)
 
 	setupPaths := strings.Split(os.Getenv("PATHS"), ",")
 	paths = make(map[string]string)
@@ -110,7 +109,7 @@ func main() {
 		v := strings.SplitN(path, ":", 2)
 		paths[v[0]] = v[1]
 
-		fmt.Printf("Path: %s, URL: %s\n", v[0], v[1])
+		log.Printf("Path: %s, URL: %s\n", v[0], v[1])
 	}
 
 	http.HandleFunc("GET /", handler)
